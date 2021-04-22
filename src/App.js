@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PokemonList from './components/PokemonList';
+import Pagination from './components/Pagination';
 import axios from 'axios';
 
 const App = () => {
@@ -9,9 +10,9 @@ const App = () => {
   // state tracks the current page user is on and sets first page as default
   const [currentPageUrl, setCurrentPageUrl] = useState('https://pokeapi.co/api/v2/pokemon/');
   // state tracks the next page user will be on when user clicks next button
-  const [nextPageUrl, setnextPageUrl] = useState();
+  const [nextPageUrl, setNextPageUrl] = useState();
   // state tracks the previous page user was on and will be on when user clicks previous button
-  const [previousPageUrl, setPreviousPageUrl] = useState();
+  const [prevPageUrl, setPrevPageUrl] = useState();
   // set state for loading time it takes for the api to retreive and display the Pokemon data, set default to true (is loading) 
   const [loading, setLoading] = useState(true);
 
@@ -34,10 +35,10 @@ const App = () => {
       setLoading(false);
 
       // state sets the url for the next button
-      setnextPageUrl(res.data.next);
+      setNextPageUrl(res.data.next);
 
       // state sets the url for the previous button
-      setnextPageUrl(res.data.previous);
+      setPrevPageUrl(res.data.previous);
 
       // loops through the retreived the names of the pokemon from pokeAPi using a map function
       setPokemon(res.data.results.map(p => p.name));
@@ -49,6 +50,16 @@ const App = () => {
     }
   }, [currentPageUrl]);
 
+  // function used by Pagaination component to set the currentPage state as the Next page when next button is clicked
+  const goToNextPage = () => {
+    setCurrentPageUrl(nextPageUrl);
+  }
+
+  // function used by Pagaination component to set the currentPage state as the Previous page when next button is clicked
+  const goToPrevPage = () => {
+    setCurrentPageUrl(prevPageUrl);
+  }
+
   // checks if loading and notifies the user whether or not it is
   if(loading){
     return 'Loading...';
@@ -58,8 +69,16 @@ const App = () => {
 
   return (
     <>
-    {/* displays the PokemonList Component */}
+      {/* displays the PokemonList Component */}
       <PokemonList pokemon={pokemon} />
+
+      {/* displays ands passes the two functions to Pagination Component */}
+      <Pagination 
+        // ternary operator: if nextPageUrl is true then pass go goToNextPage function otherwise pass null
+        goToNextPage={ nextPageUrl ? goToNextPage : null}
+        // ternary operator: if prevPageUrl is true then pass go goToPrevPage function otherwise pass null
+        goToPrevPage={prevPageUrl ? goToPrevPage : null}
+      />
     </>
   );
 }
